@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Little Light</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush: #f7e3d6;
+    --peach: #fcefdd;
+    --sky: #eaf2f2;
+    --ink: #3b2e3e;
+    --muted: #8b7d84;
+    --gold: #e8a657;
+    --sage: #7fa084;
+    --card: rgba(255, 252, 247, 0.72);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Work Sans', sans-serif;
+    color: var(--ink);
+    background: linear-gradient(160deg, var(--blush) 0%, var(--peach) 45%, var(--sky) 100%);
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px 60px;
+  }
+
+  .wrap { width: 100%; max-width: 440px; }
+
+  .greeting { text-align: center; margin-bottom: 28px; }
+  .greeting .who { font-size: 13px; color: var(--muted); letter-spacing: 0.3px; }
+  .greeting .date { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* --- affirmation card --- */
+  .stage {
+    position: relative;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 22px;
+  }
+
+  .breath {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,166,87,0.35) 0%, rgba(232,166,87,0) 70%);
+    animation: breathe 6s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+
+  .card {
+    position: relative;
+    background: var(--card);
+    backdrop-filter: blur(6px);
+    border-radius: 18px;
+    padding: 36px 30px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(59, 46, 62, 0.12);
+    width: 100%;
+  }
+
+  .thought {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    line-height: 1.4;
+    font-weight: 600;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease;
+  }
+
+  .thought.fade { opacity: 0; }
+
+  .new-thought {
+    margin-top: 18px;
+    background: none;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .new-thought:hover { background: var(--gold); color: white; }
+
+  /* --- gratitude journal --- */
+  .section-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 10px 4px;
+  }
+
+  .journal {
+    background: var(--card);
+    backdrop-filter: blur(6px);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+
+  .journal-form {
+    display: flex;
+    gap: 8px;
+  }
+
+  .journal-form input {
+    flex: 1;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid #e2d5c8;
+    border-radius: 10px;
+    background: white;
+    color: var(--ink);
+  }
+  .journal-form input:focus { outline: none; border-color: var(--sage); }
+
+  .journal-form button {
+    background: var(--sage);
+    color: white;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 0 16px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .journal-form button:hover { background: #6c8e71; }
+
+  .streak {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #e2d5c8;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .streak b { color: var(--ink); font-size: 15px; }
+
+  .entries { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+
+  .entry {
+    font-size: 13px;
+    padding: 10px 12px;
+    background: white;
+    border-radius: 10px;
+    border-left: 3px solid var(--sage);
+  }
+  .entry .e-date { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .empty-entries { font-size: 12px; color: var(--muted); text-align: center; padding: 8px 0; }
+
+  /* --- reminders --- */
+  .reminders {
+    background: var(--card);
+    backdrop-filter: blur(6px);
+    border-radius: 18px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+
+  .toggle {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: #ddd0c4;
+    cursor: pointer;
+    border: none;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.2s ease;
+  }
+  .toggle.on { background: var(--sage); }
+  .toggle.on::after { transform: translateX(18px); }
+
+  .reminder-note { font-size: 11px; color: var(--muted); margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="greeting">
+    <div class="who" id="greetingText">Good morning</div>
+    <div class="date" id="dateText"></div>
+  </div>
+
+  <div class="stage">
+    <div class="breath"></div>
+    <div class="card">
+      <div class="thought" id="thought"></div>
+      <button class="new-thought" id="newThought">another thought</button>
+    </div>
+  </div>
+
+  <p class="section-label">what are you grateful for today?</p>
+  <div class="journal">
+    <form class="journal-form" id="journalForm">
+      <input type="text" id="journalInput" placeholder="Small or big, it counts" required>
+      <button type="submit">Add</button>
+    </form>
+    <div class="streak">
+      <span>current streak</span>
+      <span><b id="streakCount">0</b> days</span>
+    </div>
+    <div class="entries" id="entries"></div>
+  </div>
+
+  <div class="reminders">
+    <div>
+      <div>Gentle reminders</div>
+      <div class="reminder-note">A nudge every couple hours while this tab is open</div>
+    </div>
+    <button class="toggle" id="reminderToggle"></button>
+  </div>
+</div>
+
+<script>
+  const THOUGHTS = [
+    "You get to start again, right now, exactly as you are.",
+    "Something today went better than you expected. Notice it.",
+    "You don't have to earn rest. You're allowed to just stop.",
+    "Someone out there is glad you exist. That's not nothing.",
+    "Progress doesn't have to look impressive to still be progress.",
+    "You've gotten through every hard day so far. That's a real track record.",
+    "It's okay to be proud of something small.",
+    "You are allowed to take up space and ask for what you need.",
+    "The version of you a year ago would be proud of how far you've come.",
+    "Not every day needs a lesson. Some days just need to end gently.",
+    "You are more than the worst thing that happened to you today.",
+    "Being kind to yourself is not the same as letting yourself off the hook — it's how you keep going.",
+    "There is enough time. Breathe.",
+    "You showed up today. That counts for more than it feels like.",
+    "Whatever you're carrying, you don't have to carry it perfectly."
+  ];
+
+  let lastIndex = -1;
+  function pickThought() {
+    let i;
+    do { i = Math.floor(Math.random() * THOUGHTS.length); } while (i === lastIndex && THOUGHTS.length > 1);
+    lastIndex = i;
+    return THOUGHTS[i];
+  }
+
+  function showThought() {
+    const el = document.getElementById('thought');
+    el.classList.add('fade');
+    setTimeout(() => {
+      el.textContent = pickThought();
+      el.classList.remove('fade');
+    }, 250);
+  }
+
+  document.getElementById('newThought').addEventListener('click', showThought);
+
+  // greeting + date
+  function setGreeting() {
+    const hour = new Date().getHours();
+    const text = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : hour < 21 ? "Good evening" : "Still up?";
+    document.getElementById('greetingText').textContent = text;
+    document.getElementById('dateText').textContent = new Date().toLocaleDateString('en-IN', {
+      weekday: 'long', day: 'numeric', month: 'long'
+    });
+  }
+
+  // --- gratitude journal storage ---
+  const STORAGE_KEY = 'little-light-entries';
+  const REMINDER_KEY = 'little-light-reminders';
+
+  function loadEntries() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveEntries(entries) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
+  function todayStr() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function computeStreak(entries) {
+    const days = [...new Set(entries.map(e => e.date))].sort().reverse();
+    if (days.length === 0) return 0;
+
+    let streak = 0;
+    let cursor = new Date();
+    // if nothing logged today yet, streak can still count from yesterday backwards
+    if (!days.includes(todayStr())) cursor.setDate(cursor.getDate() - 1);
+
+    for (;;) {
+      const cursorStr = cursor.toISOString().slice(0, 10);
+      if (days.includes(cursorStr)) {
+        streak++;
+        cursor.setDate(cursor.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  function renderJournal() {
+    const entries = loadEntries();
+    document.getElementById('streakCount').textContent = computeStreak(entries);
+
+    const list = document.getElementById('entries');
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="empty-entries">nothing logged yet — start whenever you like</div>';
+      return;
+    }
+    list.innerHTML = entries.slice().reverse().slice(0, 8).map(e => `
+      <div class="entry">
+        ${escapeHtml(e.text)}
+        <span class="e-date">${new Date(e.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  document.getElementById('journalForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('journalInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const entries = loadEntries();
+    entries.push({ text, date: todayStr() });
+    saveEntries(entries);
+    input.value = '';
+    renderJournal();
+  });
+
+  // --- reminders (Notification API, works while tab is open) ---
+  let reminderInterval = null;
+
+  function startReminders() {
+    if (reminderInterval) return;
+    reminderInterval = setInterval(() => {
+      if (Notification.permission === 'granted') {
+        new Notification('Little Light', { body: pickThought() });
+      }
+    }, 2 * 60 * 60 * 1000); // every 2 hours
+  }
+  function stopReminders() {
+    clearInterval(reminderInterval);
+    reminderInterval = null;
+  }
+
+  const toggle = document.getElementById('reminderToggle');
+
+  function setToggleState(on) {
+    toggle.classList.toggle('on', on);
+    localStorage.setItem(REMINDER_KEY, on ? '1' : '0');
+    if (on) startReminders(); else stopReminders();
+  }
+
+  toggle.addEventListener('click', async () => {
+    const turningOn = !toggle.classList.contains('on');
+    if (turningOn) {
+      if (!('Notification' in window)) {
+        alert("This browser doesn't support notifications, but the app still works fine without them.");
+        return;
+      }
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') return;
+    }
+    setToggleState(turningOn);
+  });
+
+  // init
+  setGreeting();
+  showThought();
+  document.getElementById('thought').classList.remove('fade');
+  document.getElementById('thought').textContent = pickThought();
+  renderJournal();
+  if (localStorage.getItem(REMINDER_KEY) === '1' && Notification.permission === 'granted') {
+    setToggleState(true);
+  }
+</script>
+
+</body>
+</html>
