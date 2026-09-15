@@ -1,9 +1,12 @@
 export async function onRequest(context) {
-  const { request, env } = context;
-  const url = `${env.SUPABASE_URL}/rest/v1/entries`;
+  const { request } = context;
+  const SUPABASE_URL = context.env.SUPABASE_URL || "https://fvwgndrrcqjberpdmmcz.supabase.co";
+  const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+
+  const url = `${SUPABASE_URL}/rest/v1/entries`;
   const headers = {
-    'apikey': env.SUPABASE_ANON_KEY,
-    'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
     'Content-Type': 'application/json',
     'Prefer': 'return=representation'
   };

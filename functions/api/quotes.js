@@ -1,5 +1,7 @@
 export async function onRequestGet(context) {
-  const { SUPABASE_URL, SUPABASE_ANON_KEY } = context.env;
+  const SUPABASE_URL = context.env.SUPABASE_URL || "https://fvwgndrrcqjberpdmmcz.supabase.co";
+  const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+
   const url = `${SUPABASE_URL}/rest/v1/quotes?select=*&order=random()&limit=1`;
   
   try {
