@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Little Light — Living Gita Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #f7f3ed;
+    --bg-card: #ffffff;
+    --ink-black: #1c1a19;
+    --ink-muted: #736d67;
+    --accent-beige: #e6dfd5;
+    --border-subtle: #eae3d9;
+    --highlight-gold: #b3783e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Work Sans', sans-serif;
+    color: var(--ink-black);
+    background-color: var(--bg-base);
+    display: flex;
+    justify-content: center;
+    padding: 48px 16px 64px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { width: 100%; max-width: 460px; }
+
+  .greeting { text-align: center; margin-bottom: 28px; }
+  .greeting .who { font-size: 14px; color: var(--ink-muted); letter-spacing: 0.5px; font-weight: 500; text-transform: uppercase; }
+  .greeting .date { font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+
+  .stage {
+    position: relative;
+    min-height: 270px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .breath {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(230,223,213,0.8) 0%, rgba(230,223,213,0) 70%);
+    animation: breathe 7s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(0.92); opacity: 0.5; }
+    50% { transform: scale(1.15); opacity: 0.9; }
+  }
+
+  .card {
+    position: relative;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 34px 28px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(28, 26, 25, 0.04);
+    width: 100%;
+    border: 1px solid var(--border-subtle);
+  }
+
+  .tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--highlight-gold);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  .thought {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    line-height: 1.5;
+    font-weight: 600;
+    min-height: 105px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-black);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .thought.fade { opacity: 0; transform: translateY(4px); }
+
+  .attribution {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  .new-thought {
+    margin-top: 20px;
+    background: transparent;
+    border: 1px solid var(--ink-black);
+    color: var(--ink-black);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    padding: 9px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.1s;
+  }
+  .new-thought:hover { background: var(--ink-black); color: var(--bg-card); }
+  .new-thought:active { transform: scale(0.97); }
+
+  .section-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--ink-muted);
+    margin: 0 0 10px 4px;
+    font-weight: 600;
+  }
+
+  .journal {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(28, 26, 25, 0.03);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .journal-form {
+    display: flex;
+    gap: 8px;
+  }
+
+  .journal-form input {
+    flex: 1;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 11px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: var(--bg-base);
+    color: var(--ink-black);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .journal-form input:focus { outline: none; border-color: var(--ink-black); background: #ffffff; }
+
+  .journal-form button {
+    background: var(--ink-black);
+    color: var(--bg-card);
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .journal-form button:hover { opacity: 0.88; }
+  .journal-form button:active { transform: scale(0.97); }
+
+  .streak {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--accent-beige);
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .streak b { color: var(--ink-black); font-size: 15px; font-weight: 600; }
+
+  .entries { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+
+  .entry {
+    font-size: 13px;
+    padding: 12px 14px;
+    background: var(--bg-base);
+    border-radius: 8px;
+    border-left: 3px solid var(--ink-black);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .entry-content { flex: 1; margin-right: 8px; color: var(--ink-black); }
+  .entry .e-date { display: block; font-size: 10px; color: var(--ink-muted); margin-top: 3px; }
+  
+  .del-btn {
+    background: none;
+    border: none;
+    color: var(--ink-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    opacity: 0.5;
+    transition: opacity 0.2s, color 0.2s;
+  }
+  .del-btn:hover { opacity: 1; color: var(--ink-black); }
+
+  .empty-entries { font-size: 12px; color: var(--ink-muted); text-align: center; padding: 8px 0; }
+
+  .reminders {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    box-shadow: 0 10px 30px rgba(28, 26, 25, 0.03);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--accent-beige);
+    cursor: pointer;
+    border: none;
+    flex-shrink: 0;
+    transition: background 0.25s;
+  }
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .toggle.on { background: var(--ink-black); }
+  .toggle.on::after { transform: translateX(20px); }
+
+  .reminder-note { font-size: 11px; color: var(--ink-muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="greeting">
+    <div class="who" id="greetingText">Good morning</div>
+    <div class="date" id="dateText"></div>
+  </div>
+
+  <div class="stage">
+    <div class="breath"></div>
+    <div class="card">
+      <div class="tag">Living Gita Wisdom</div>
+      <div class="thought" id="thought"></div>
+      <div class="attribution">— Acharya Prashant</div>
+      <button class="new-thought" id="newThought">reflect on another verse</button>
+    </div>
+  </div>
+
+  <p class="section-label">what clarity or gratitude entered your day?</p>
+  <div class="journal">
+    <form class="journal-form" id="journalForm">
+      <input type="text" id="journalInput" placeholder="A quiet thought, lesson, or moment" required>
+      <button type="submit">Log</button>
+    </form>
+    <div class="streak">
+      <span>reflection streak</span>
+      <span><b id="streakCount">0</b> days</span>
+    </div>
+    <div class="entries" id="entries"></div>
+  </div>
+
+  <div class="reminders">
+    <div>
+      <div>Daily Wisdom Nudges</div>
+      <div class="reminder-note">A Gita insight sent every 2 hours while open</div>
+    </div>
+    <button class="toggle" id="reminderToggle" aria-label="Toggle notifications"></button>
+  </div>
+</div>
+
+<script>
+  const API_URL = '/api/entries';
+  const QUOTES_API_URL = '/api/quotes';
+  const REMINDER_KEY = 'little-light-reminders';
+  let reminderInterval = null;
+
+  function getElement(id) {
+    return document.getElementById(id);
+  }
+
+  function setGreeting() {
+    const greeting = getElement('greetingText');
+    const date = getElement('dateText');
+    const now = new Date();
+    const hour = now.getHours();
+    const text = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : hour < 21 ? 'Good evening' : 'Still up?';
+
+    if (greeting) greeting.textContent = text;
+    if (date) {
+      date.textContent = now.toLocaleDateString('en-IN', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      });
+    }
+  }
+
+  function getLocalIsoDate(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  async function showThought() {
+    const element = getElement('thought');
+    if (!element) {
+      console.warn('Little Light: #thought was not found.');
+      return;
+    }
+
+    element.classList.add('fade');
+
+    try {
+      const response = await fetch(QUOTES_API_URL);
+      if (!response.ok) throw new Error(`Quotes request failed: ${response.status}`);
+      const data = await response.json();
+      element.textContent = data && data.quote
+        ? data.quote
+        : 'Silence within is the highest wisdom.';
+    } catch (error) {
+      console.error('Failed to fetch quote:', error);
+      element.textContent = 'Right action is its own reward.';
+    } finally {
+      element.classList.remove('fade');
+    }
+  }
+
+  async function loadEntries() {
+    try {
+      const response = await fetch(API_URL);
+      if (!response.ok) throw new Error(`Entries request failed: ${response.status}`);
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Failed to load entries:', error);
+      return [];
+    }
+  }
+
+  function computeStreak(entries) {
+    if (!Array.isArray(entries)) return 0;
+
+    const days = [...new Set(
+      entries
+        .map(entry => entry.entry_date ? entry.entry_date.slice(0, 10) : entry.date)
+        .filter(Boolean)
+    )].sort().reverse();
+
+    if (days.length === 0) return 0;
+
+    let streak = 0;
+    const cursor = new Date();
+    const today = getLocalIsoDate(cursor);
+
+    if (!days.includes(today)) cursor.setDate(cursor.getDate() - 1);
+
+    while (days.includes(getLocalIsoDate(cursor))) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    return streak;
+  }
+
+  function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = String(value ?? '');
+    return div.innerHTML;
+  }
+
+  async function deleteEntry(id) {
+    try {
+      const response = await fetch(`${API_URL}?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error(`Delete request failed: ${response.status}`);
+      await renderJournal();
+    } catch (error) {
+      console.error('Failed to delete entry:', error);
+    }
+  }
+
+  async function renderJournal() {
+    const list = getElement('entries');
+    const streak = getElement('streakCount');
+
+    if (!list) {
+      console.warn('Little Light: #entries was not found.');
+      return;
+    }
+
+    const entries = await loadEntries();
+    if (streak) streak.textContent = computeStreak(entries);
+
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="empty-entries">no reflections logged yet — record your first thought above</div>';
+      return;
+    }
+
+    list.innerHTML = entries.slice(0, 8).map(entry => {
+      const rawDate = entry.entry_date
+        ? entry.entry_date.slice(0, 10)
+        : entry.date || getLocalIsoDate();
+      const formattedDate = new Date(`${rawDate}T00:00:00`).toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short'
+      });
+
+      return `
+        <div class="entry">
+          <div class="entry-content">
+            ${escapeHtml(entry.text)}
+            <span class="e-date">${formattedDate}</span>
+          </div>
+          <button class="del-btn" data-entry-id="${escapeHtml(entry.id)}" aria-label="Delete entry">&times;</button>
+        </div>
+      `;
+    }).join('');
+
+    list.querySelectorAll('.del-btn').forEach(button => {
+      button.addEventListener('click', () => deleteEntry(button.dataset.entryId));
+    });
+  }
+
+  function setupJournalForm() {
+    const form = getElement('journalForm');
+    if (!form) {
+      console.warn('Little Light: #journalForm was not found.');
+      return;
+    }
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const input = getElement('journalInput');
+      if (!input) return;
+
+      const text = input.value.trim();
+      if (!text) return;
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, date: getLocalIsoDate() })
+        });
+        if (!response.ok) throw new Error(`Save request failed: ${response.status}`);
+        input.value = '';
+        await renderJournal();
+      } catch (error) {
+        console.error('Failed to save entry:', error);
+        alert('Could not save your reflection. Please try again.');
+      }
+    });
+  }
+
+  function stopReminders() {
+    if (reminderInterval !== null) {
+      clearInterval(reminderInterval);
+      reminderInterval = null;
+    }
+  }
+
+  function startReminders() {
+    if (reminderInterval !== null) return;
+
+    reminderInterval = setInterval(async () => {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+      try {
+        const response = await fetch(QUOTES_API_URL);
+        if (!response.ok) throw new Error('Reminder quote request failed');
+        const data = await response.json();
+        new Notification('Living Gita Insight', {
+          body: data && data.quote ? data.quote : 'Give your complete attention to the present duty.'
+        });
+      } catch (error) {
+        console.error('Reminder error:', error);
+        new Notification('Living Gita Insight', {
+          body: 'Give your complete attention to the present duty.'
+        });
+      }
+    }, 2 * 60 * 60 * 1000);
+  }
+
+  function setupReminderToggle() {
+    const toggle = getElement('reminderToggle');
+    if (!toggle) {
+      console.warn('Little Light: #reminderToggle was not found.');
+      return;
+    }
+
+    function setToggleState(enabled) {
+      toggle.classList.toggle('on', enabled);
+      localStorage.setItem(REMINDER_KEY, enabled ? '1' : '0');
+      if (enabled) startReminders();
+      else stopReminders();
+    }
+
+    toggle.addEventListener('click', async () => {
+      const turningOn = !toggle.classList.contains('on');
+
+      if (turningOn) {
+        if (!('Notification' in window)) {
+          alert("This browser doesn't support notifications, but the app still works without them.");
+          return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+
+        new Notification('Living Gita Insight', {
+          body: 'Gentle wisdom notifications enabled.'
+        });
+      }
+
+      setToggleState(turningOn);
+    });
+
+    if (
+      localStorage.getItem(REMINDER_KEY) === '1' &&
+      'Notification' in window &&
+      Notification.permission === 'granted'
+    ) {
+      setToggleState(true);
+    }
+  }
+
+  function setupNewThoughtButton() {
+    const button = getElement('newThought');
+    if (!button) {
+      console.warn('Little Light: #newThought was not found.');
+      return;
+    }
+    button.addEventListener('click', showThought);
+  }
+
+  function initApp() {
+    setGreeting();
+    setupNewThoughtButton();
+    setupJournalForm();
+    setupReminderToggle();
+    showThought();
+    renderJournal();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp, { once: true });
+  } else {
+    initApp();
+  }
+</script>
+
+</body>
+</html>
