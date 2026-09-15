@@ -292,186 +292,304 @@
 </div>
 
 <script>
-  function setGreeting() {
-    const hour = new Date().getHours();
-    const text = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : hour < 21 ? "Good evening" : "Still up?";
-    document.getElementById('greetingText').textContent = text;
-    document.getElementById('dateText').textContent = new Date().toLocaleDateString('en-IN', {
-      weekday: 'long', day: 'numeric', month: 'long'
-    });
-  }
-
   const API_URL = '/api/entries';
+  const QUOTES_API_URL = '/api/quotes';
   const REMINDER_KEY = 'little-light-reminders';
+  let reminderInterval = null;
 
-  function getLocalIsoDate(d = new Date()) {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  function getElement(id) {
+    return document.getElementById(id);
   }
 
-  async function showThought() {
-    const el = document.getElementById('thought');
-    el.classList.add('fade');
+  function setGreeting() {
+    const greeting = getElement('greetingText');
+    const date = getElement('dateText');
+    const now = new Date();
+    const hour = now.getHours();
+    const text = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : hour < 21 ? 'Good evening' : 'Still up?';
 
-    try {
-      const res = await fetch('/api/quotes');
-      const data = await res.json();
-      
-      setTimeout(() => {
-        if (data && data.quote) {
-          el.textContent = data.quote;
-        } else {
-          el.textContent = "Silence within is the highest wisdom.";
-        }
-        el.classList.remove('fade');
-      }, 250);
-    } catch (err) {
-      console.error('Failed to fetch quote:', err);
-      el.textContent = "Right action is its own reward.";
-      el.classList.remove('fade');
+    if (greeting) greeting.textContent = text;
+    if (date) {
+      date.textContent = now.toLocaleDateString('en-IN', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      });
     }
   }
 
-  document.getElementById('newThought').addEventListener('click', showThought);
+  function getLocalIsoDate(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  
+
+async function showThought() {
+  const element = document.getElementById('thought');
+
+  if (!element) {
+    console.error('Little Light: #thought element not found.');
+    return;
+  }
+
+  element.classList.add('fade');
+
+  try {
+    const response = await fetch('/api/quotes');
+
+    if (!response.ok) {
+      throw new Error(`Quotes request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // The API returns one quote object.
+    // This also supports an array, just in case.
+    const quote = Array.isArray(data) ? data[0] : data;
+
+    element.textContent =
+      quote && quote.quote
+        ? quote.quote
+        : 'Silence within is the highest wisdom.';
+
+    console.log('Quote loaded:', quote);
+  } catch (error) {
+    console.error('Failed to fetch quote:', error);
+
+    element.textContent =
+      'Right action is its own reward.';
+  } finally {
+    element.classList.remove('fade');
+  }
+}
+
+   
 
   async function loadEntries() {
     try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
+      const response = await fetch(API_URL);
+      if (!response.ok) throw new Error(`Entries request failed: ${response.status}`);
+      const data = await response.json();
       return Array.isArray(data) ? data : [];
-    } catch (err) {
-      console.error('Failed to load entries:', err);
+    } catch (error) {
+      console.error('Failed to load entries:', error);
       return [];
     }
   }
 
   function computeStreak(entries) {
     if (!Array.isArray(entries)) return 0;
-    const days = [...new Set(entries.map(e => e.entry_date ? e.entry_date.slice(0, 10) : e.date))].sort().reverse();
+
+    const days = [...new Set(
+      entries
+        .map(entry => entry.entry_date ? entry.entry_date.slice(0, 10) : entry.date)
+        .filter(Boolean)
+    )].sort().reverse();
+
     if (days.length === 0) return 0;
 
     let streak = 0;
-    let cursor = new Date();
-    const todayStr = getLocalIsoDate(cursor);
+    const cursor = new Date();
+    const today = getLocalIsoDate(cursor);
 
-    if (!days.includes(todayStr)) cursor.setDate(cursor.getDate() - 1);
+    if (!days.includes(today)) cursor.setDate(cursor.getDate() - 1);
 
-    for (;;) {
-      const cursorStr = getLocalIsoDate(cursor);
-      if (days.includes(cursorStr)) {
-        streak++;
-        cursor.setDate(cursor.getDate() - 1);
-      } else {
-        break;
-      }
+    while (days.includes(getLocalIsoDate(cursor))) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
     }
+
     return streak;
   }
 
-  async function renderJournal() {
-    const entries = await loadEntries();
-    document.getElementById('streakCount').textContent = computeStreak(entries);
+  function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = String(value ?? '');
+    return div.innerHTML;
+  }
 
-    const list = document.getElementById('entries');
-    if (!entries || entries.length === 0) {
+  async function deleteEntry(id) {
+    try {
+      const response = await fetch(`${API_URL}?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error(`Delete request failed: ${response.status}`);
+      await renderJournal();
+    } catch (error) {
+      console.error('Failed to delete entry:', error);
+    }
+  }
+
+  async function renderJournal() {
+    const list = getElement('entries');
+    const streak = getElement('streakCount');
+
+    if (!list) {
+      console.warn('Little Light: #entries was not found.');
+      return;
+    }
+
+    const entries = await loadEntries();
+    if (streak) streak.textContent = computeStreak(entries);
+
+    if (entries.length === 0) {
       list.innerHTML = '<div class="empty-entries">no reflections logged yet — record your first thought above</div>';
       return;
     }
 
-    list.innerHTML = entries.slice(0, 8).map(e => {
-      const rawDate = e.entry_date ? e.entry_date.slice(0, 10) : e.date;
-      const formattedDate = new Date(rawDate + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    list.innerHTML = entries.slice(0, 8).map(entry => {
+      const rawDate = entry.entry_date
+        ? entry.entry_date.slice(0, 10)
+        : entry.date || getLocalIsoDate();
+      const formattedDate = new Date(`${rawDate}T00:00:00`).toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short'
+      });
+
       return `
         <div class="entry">
           <div class="entry-content">
-            ${escapeHtml(e.text)}
+            ${escapeHtml(entry.text)}
             <span class="e-date">${formattedDate}</span>
           </div>
-          <button class="del-btn" onclick="deleteEntry(${e.id})" aria-label="Delete entry">&times;</button>
+          <button class="del-btn" data-entry-id="${escapeHtml(entry.id)}" aria-label="Delete entry">&times;</button>
         </div>
       `;
     }).join('');
-  }
 
-  async function deleteEntry(id) {
-    await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
-    renderJournal();
-  }
-
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  document.getElementById('journalForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const input = document.getElementById('journalInput');
-    const text = input.value.trim();
-    if (!text) return;
-
-    await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, date: getLocalIsoDate() })
+    list.querySelectorAll('.del-btn').forEach(button => {
+      button.addEventListener('click', () => deleteEntry(button.dataset.entryId));
     });
+  }
 
-    input.value = '';
-    renderJournal();
-  });
+  function setupJournalForm() {
+    const form = getElement('journalForm');
+    if (!form) {
+      console.warn('Little Light: #journalForm was not found.');
+      return;
+    }
 
-  let reminderInterval = null;
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const input = getElement('journalInput');
+      if (!input) return;
+
+      const text = input.value.trim();
+      if (!text) return;
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, date: getLocalIsoDate() })
+        });
+        if (!response.ok) throw new Error(`Save request failed: ${response.status}`);
+        input.value = '';
+        await renderJournal();
+      } catch (error) {
+        console.error('Failed to save entry:', error);
+        alert('Could not save your reflection. Please try again.');
+      }
+    });
+  }
+
+  function stopReminders() {
+    if (reminderInterval !== null) {
+      clearInterval(reminderInterval);
+      reminderInterval = null;
+    }
+  }
 
   function startReminders() {
-    if (reminderInterval) return;
+    if (reminderInterval !== null) return;
+
     reminderInterval = setInterval(async () => {
-      if (Notification.permission === 'granted') {
-        try {
-          const res = await fetch('/api/quotes');
-          const data = await res.json();
-          new Notification('Living Gita Insight', { body: data.quote });
-        } catch {
-          new Notification('Living Gita Insight', { body: 'Give your complete attention to the present duty.' });
-        }
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+      try {
+        const response = await fetch(QUOTES_API_URL);
+        if (!response.ok) throw new Error('Reminder quote request failed');
+        const data = await response.json();
+        new Notification('Living Gita Insight', {
+          body: data && data.quote ? data.quote : 'Give your complete attention to the present duty.'
+        });
+      } catch (error) {
+        console.error('Reminder error:', error);
+        new Notification('Living Gita Insight', {
+          body: 'Give your complete attention to the present duty.'
+        });
       }
     }, 2 * 60 * 60 * 1000);
   }
 
-  function stopReminders() {
-    clearInterval(reminderInterval);
-    reminderInterval = null;
-  }
-
-  const toggle = document.getElementById('reminderToggle');
-
-  function setToggleState(on) {
-    toggle.classList.toggle('on', on);
-    localStorage.setItem(REMINDER_KEY, on ? '1' : '0');
-    if (on) startReminders(); else stopReminders();
-  }
-
-  toggle.addEventListener('click', async () => {
-    const turningOn = !toggle.classList.contains('on');
-    if (turningOn) {
-      if (!('Notification' in window)) {
-        alert("This browser doesn't support notifications, but the app still works fine without them.");
-        return;
-      }
-      const perm = await Notification.requestPermission();
-      if (perm !== 'granted') return;
-      new Notification('Living Gita Insight', { body: 'Gentle wisdom notifications enabled.' });
+  function setupReminderToggle() {
+    const toggle = getElement('reminderToggle');
+    if (!toggle) {
+      console.warn('Little Light: #reminderToggle was not found.');
+      return;
     }
-    setToggleState(turningOn);
-  });
 
-  setGreeting();
-  showThought();
-  renderJournal();
-  if (localStorage.getItem(REMINDER_KEY) === '1' && Notification.permission === 'granted') {
-    setToggleState(true);
+    function setToggleState(enabled) {
+      toggle.classList.toggle('on', enabled);
+      localStorage.setItem(REMINDER_KEY, enabled ? '1' : '0');
+      if (enabled) startReminders();
+      else stopReminders();
+    }
+
+    toggle.addEventListener('click', async () => {
+      const turningOn = !toggle.classList.contains('on');
+
+      if (turningOn) {
+        if (!('Notification' in window)) {
+          alert("This browser doesn't support notifications, but the app still works without them.");
+          return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+
+        new Notification('Living Gita Insight', {
+          body: 'Gentle wisdom notifications enabled.'
+        });
+      }
+
+      setToggleState(turningOn);
+    });
+
+    if (
+      localStorage.getItem(REMINDER_KEY) === '1' &&
+      'Notification' in window &&
+      Notification.permission === 'granted'
+    ) {
+      setToggleState(true);
+    }
+  }
+
+  function setupNewThoughtButton() {
+    const button = getElement('newThought');
+    if (!button) {
+      console.warn('Little Light: #newThought was not found.');
+      return;
+    }
+    button.addEventListener('click', showThought);
+  }
+
+  function initApp() {
+    setGreeting();
+    setupNewThoughtButton();
+    setupJournalForm();
+    setupReminderToggle();
+    showThought();
+    renderJournal();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp, { once: true });
+  } else {
+    initApp();
   }
 </script>
 
