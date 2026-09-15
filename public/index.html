@@ -325,29 +325,48 @@
     return `${year}-${month}-${day}`;
   }
 
-  async function showThought() {
-    const element = getElement('thought');
-    if (!element) {
-      console.warn('Little Light: #thought was not found.');
-      return;
-    }
+  
 
-    element.classList.add('fade');
+async function showThought() {
+  const element = document.getElementById('thought');
 
-    try {
-      const response = await fetch(QUOTES_API_URL);
-      if (!response.ok) throw new Error(`Quotes request failed: ${response.status}`);
-      const data = await response.json();
-      element.textContent = data && data.quote
-        ? data.quote
-        : 'Silence within is the highest wisdom.';
-    } catch (error) {
-      console.error('Failed to fetch quote:', error);
-      element.textContent = 'Right action is its own reward.';
-    } finally {
-      element.classList.remove('fade');
-    }
+  if (!element) {
+    console.error('Little Light: #thought element not found.');
+    return;
   }
+
+  element.classList.add('fade');
+
+  try {
+    const response = await fetch('/api/quotes');
+
+    if (!response.ok) {
+      throw new Error(`Quotes request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // The API returns one quote object.
+    // This also supports an array, just in case.
+    const quote = Array.isArray(data) ? data[0] : data;
+
+    element.textContent =
+      quote && quote.quote
+        ? quote.quote
+        : 'Silence within is the highest wisdom.';
+
+    console.log('Quote loaded:', quote);
+  } catch (error) {
+    console.error('Failed to fetch quote:', error);
+
+    element.textContent =
+      'Right action is its own reward.';
+  } finally {
+    element.classList.remove('fade');
+  }
+}
+
+   
 
   async function loadEntries() {
     try {
