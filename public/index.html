@@ -340,7 +340,8 @@
     try {
       const res = await fetch(API_URL);
       if (!res.ok) throw new Error('Failed to fetch');
-      return await res.json();
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
     } catch (err) {
       console.error('Failed to load entries:', err);
       return [];
@@ -348,6 +349,7 @@
   }
 
   function computeStreak(entries) {
+    if (!Array.isArray(entries)) return 0;
     const days = [...new Set(entries.map(e => e.entry_date ? e.entry_date.slice(0, 10) : e.date))].sort().reverse();
     if (days.length === 0) return 0;
 
@@ -395,7 +397,7 @@
   }
 
   async function deleteEntry(id) {
-    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
     renderJournal();
   }
 
