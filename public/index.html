@@ -316,7 +316,7 @@
     el.classList.add('fade');
 
     try {
-      const res = await fetch('/api/quotes/random');
+      const res = await fetch('/api/quotes');
       const data = await res.json();
       
       setTimeout(() => {
@@ -428,7 +428,7 @@
     reminderInterval = setInterval(async () => {
       if (Notification.permission === 'granted') {
         try {
-          const res = await fetch('/api/quotes/random');
+          const res = await fetch('/api/quotes');
           const data = await res.json();
           new Notification('Living Gita Insight', { body: data.quote });
         } catch {
