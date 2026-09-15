@@ -1,7 +1,7 @@
 export async function onRequest(context) {
   const { request } = context;
   const SUPABASE_URL = "https://fvwgndrrcqjberpdmmcz.supabase.co";
-  const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+  const SUPABASE_ANON_KEY = "sb_publishable_xlqiJ2voo1xlLqcoyVRCyA_ejHVR7dO";
 
   const url = `${SUPABASE_URL}/rest/v1/entries`;
   const headers = {
